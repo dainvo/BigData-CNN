@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Detección de Elementos del Salón 416 - 20251695011</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./styles.css" />
+
+  <!-- TensorFlow.js Core-->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+  
+  <!-- TFLite Support-->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.9/dist/tf-tflite.min.js"></script>
+  
+  <!-- Verificador de carga del modelo-->
+  <script>
+    (async () => {
+      // Esperar 1 segundo a que los scripts se carguen
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Verificar TensorFlow.js
+      if (typeof tf === 'undefined') {
+        console.error('❌ TensorFlow.js no se cargó');
+        alert('Error: TensorFlow.js no se cargó. Verifica tu conexión a internet.');
+        return;
+      }
+      console.log('✅ TensorFlow.js cargado:', tf.version.tfjs);
+      
+      // Verificar TFLite
+      if (typeof window.tflite === 'undefined') {
+        console.error('❌ TFLite no se cargó');
+        console.log('Intentando cargar manualmente...');
+        
+        // Intentar cargar de forma alternativa
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.10/dist/tf-tflite.min.js';
+        script.onload = () => {
+          console.log('✅ TFLite cargado en segundo intento');
+          setTimeout(() => {
+            if (typeof window.tflite !== 'undefined') {
+              document.getElementById('status').textContent = 
+                'Modelo listo para cargar';
+            }
+          }, 500);
+        };
+        script.onerror = () => {
+          console.error('❌ TFLite falló en segundo intento también');
+          const statusEl = document.getElementById('status');
+          if (statusEl) {
+            statusEl.textContent = 
+              '❌ Error crítico: No se puede cargar TFLite. Verifica tu conexión.';
+          }
+        };
+        document.head.appendChild(script);
+      } else {
+        console.log('✅ TFLite cargado correctamente');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Detección de Objetos del Salón de Cómputo</h1>
+      <p>El siguiente módulo emplea un modelo entrenado con YOLOv8 y exportado a TensorFlow Lite para su implementación web en
+        la detección y clasificación de distintos objetos fotografiados individualmente para el entrenamiento de la red, permitiendo que 
+        se reconozcan dichos objetos en una escena completa del salón de cómputo 416 de la sede Sabio Caldas de la UDFJC.</p>
+    </header>
+
+    <main>
+      <section class="uploader">
+        <div class="uploader-text">
+          <p style="text-align:center;">Selecciona una imagen del salón 416 que contenga alguno de los siguientes objetos:</p>
+          <p class="uploader-objects" style="text-align:center;">
+            <em>🗄️ CPUs (0) · 🪑 Mesas (1) · 🖱️ Mouse (2) · 🖥️ Pantallas (3) · 💺 Sillas (4) · ⌨️ Teclados (5)</em>
+          </p>
+          <p class="uploader-hint" style="text-align:center;">
+            Una vez hayas cargado la imagen, presiona el botón <strong>“Detectar Objetos”</strong>.
+          </p>
+        </div>
+
+        <div class="file-input-wrapper">
+          <input 
+            id="fileInput" 
+            type="file" 
+            accept="image/jpeg,image/jpg,image/png"
+          />
+        </div>
+
+        <div class="button-group">
+          <button id="btnRun" disabled>🔍 Detectar Objetos</button>
+        </div>
+
+        <div id="status" class="status-text">Inicializando...</div>
+      </section>
+
+      <div class="canvas-wrap">
+        <div class="canvas-col">
+          <h3>📷 Imagen Original</h3>
+          <div class="canvas-container">
+            <img id="img" alt="preview" />
+            <div id="imgPlaceholder" class="placeholder-message">
+              <span class="placeholder-icon">📸</span>
+              <p>¡Carga tu imagen para usar el modelo!</p>
+            </div>
+          </div>
+        </div>
+        <div class="canvas-col">
+          <h3>✨ Resultado de Detección</h3>
+          <div class="canvas-container">
+            <canvas id="canvas" width="640" height="480"></canvas>
+            <div id="canvasPlaceholder" class="placeholder-message">
+              <span class="placeholder-icon">🔍</span>
+              <p id="canvasPlaceholderText">¡Carga tu imagen y después presiona "Detectar Objetos"!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="counts-section">
+        <h3>📊 Conteo de Objetos Detectados</h3>
+        <table id="countsTable">
+          <thead>
+            <tr>
+              
+              <th>Objeto</th>
+              <th>Cantidad Detectada</th>
+            </tr>
+          </thead>
+          <tbody id="countsBody"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <footer>
+      <small>Desarrollado por Daniela Ivon Zabala Donato (20251695011)</small>
+    </footer>
+  </div>
+
+  <!-- Script principal -->
+  <script src="./app.js"></script>
+</body>
+</html>
